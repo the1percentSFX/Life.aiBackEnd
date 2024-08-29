@@ -8,6 +8,14 @@ public func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
+    // Add logging for database configuration
+    app.logger.info("Database Configuration:")
+    app.logger.info("Host: \(Environment.get("DATABASE_HOST") ?? "localhost")")
+    app.logger.info("Port: \(Environment.get("DATABASE_PORT") ?? String(SQLPostgresConfiguration.ianaPortNumber))")
+    app.logger.info("Database: \(Environment.get("DATABASE_NAME") ?? "vapor_database")")
+    app.logger.info("Username: \(Environment.get("DATABASE_USERNAME") ?? "vapor_username")")
+    // Do not log the password for security reasons
+
     app.databases.use(.postgres(configuration: .init(
         hostname: Environment.get("DATABASE_HOST") ?? "localhost",
         port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? SQLPostgresConfiguration.ianaPortNumber,
