@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Victor Ramirez on 8/28/24.
 //
@@ -9,7 +9,7 @@ import Foundation
 import Fluent
 import Vapor
 
-final class JournalEntry: Model, Content {
+final class JournalEntry: Model, Content, Sendable {
     static let schema = "journal_entries"
     
     @ID(key: .id)
@@ -28,3 +28,4 @@ final class JournalEntry: Model, Content {
         self.content = content
     }
 }
+

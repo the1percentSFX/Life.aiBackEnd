@@ -1,4 +1,5 @@
 import Vapor
+import Fluent
 
 func routes(_ app: Application) throws {
     
@@ -9,11 +10,10 @@ func routes(_ app: Application) throws {
     }
     
     // Get all journal entries with pagination
-    app.get("journal") { req -> EventLoopFuture<Page<JournalEntry>> in
-        let page = try req.query.decode(PageRequest.self)
+    app.get("journal") { req -> EventLoopFuture<[JournalEntry]> in
         return JournalEntry.query(on: req.db)
             .sort(\.$createdAt, .descending)
-            .paginate(page)
+            .all()
     }
 
     // Update a journal entry
@@ -35,4 +35,3 @@ func routes(_ app: Application) throws {
             .transform(to: .ok)
     }
 }
-
