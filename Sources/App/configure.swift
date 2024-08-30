@@ -8,14 +8,12 @@ public func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
-    // Add logging for database configuration
-    app.logger.info("Database Configuration:")
-    app.logger.info("Host: \(Environment.get("DATABASE_HOST") ?? Environment.get("PGHOST") ?? "localhost")")
-    app.logger.info("Port: \(Environment.get("DATABASE_PORT") ?? Environment.get("PGPORT") ?? "5432")")
-    app.logger.info("Database: \(Environment.get("DATABASE_NAME") ?? Environment.get("PGDATABASE") ?? "vapor_database")")
-    app.logger.info("Username: \(Environment.get("DATABASE_USERNAME") ?? Environment.get("PGUSER") ?? "vapor_username")")
-    // Do not log the password for security reasons
+    // Configure the port
+    if let portString = Environment.get("PORT"), let port = Int(portString) {
+        app.http.server.configuration.port = port
+    }
 
+    // Database configuration
     let databaseHost = Environment.get("DATABASE_HOST") ?? Environment.get("PGHOST") ?? "localhost"
     let databasePort = Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? Environment.get("PGPORT").flatMap(Int.init(_:)) ?? 5432
     let databaseName = Environment.get("DATABASE_NAME") ?? Environment.get("PGDATABASE") ?? "vapor_database"
@@ -36,6 +34,15 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateJournalEntry())
 
     try await app.autoMigrate()
+
+    // Log configuration details (for debugging)
+    app.logger.info("Server will run on port: \(app.http.server.configuration.port)")
+    app.logger.info("Database Configuration:")
+    app.logger.info("Host: \(databaseHost)")
+    app.logger.info("Port: \(databasePort)")
+    app.logger.info("Database: \(databaseName)")
+    app.logger.info("Username: \(databaseUsername)")
+    // Do not log the password for security reasons
 }
 
 
