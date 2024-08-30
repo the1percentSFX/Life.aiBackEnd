@@ -5,20 +5,17 @@ import Vapor
 
 // configures your application
 public func configure(_ app: Application) async throws {
-    // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-
-    // Configure the port
+    // Configure the port for the application
     if let portString = Environment.get("PORT"), let port = Int(portString) {
         app.http.server.configuration.port = port
     }
 
     // Database configuration
-    let databaseHost = Environment.get("DATABASE_HOST") ?? Environment.get("PGHOST") ?? "localhost"
-    let databasePort = Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? Environment.get("PGPORT").flatMap(Int.init(_:)) ?? 5432
-    let databaseName = Environment.get("DATABASE_NAME") ?? Environment.get("PGDATABASE") ?? "vapor_database"
-    let databaseUsername = Environment.get("DATABASE_USERNAME") ?? Environment.get("PGUSER") ?? "vapor_username"
-    let databasePassword = Environment.get("DATABASE_PASSWORD") ?? Environment.get("PGPASSWORD") ?? "vapor_password"
+    let databaseHost = Environment.get("DATABASE_HOST") ?? "localhost"
+    let databasePort = Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? 5432 // Default to 5432 if not specified
+    let databaseName = Environment.get("DATABASE_NAME") ?? "vapor_database"
+    let databaseUsername = Environment.get("DATABASE_USERNAME") ?? "vapor_username"
+    let databasePassword = Environment.get("DATABASE_PASSWORD") ?? "vapor_password"
 
     let databaseConfig = SQLPostgresConfiguration(
         hostname: databaseHost,
