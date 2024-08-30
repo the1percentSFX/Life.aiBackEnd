@@ -16,14 +16,22 @@ public func configure(_ app: Application) async throws {
     app.logger.info("Username: \(Environment.get("DATABASE_USERNAME") ?? Environment.get("PGUSER") ?? "vapor_username")")
     // Do not log the password for security reasons
 
-    app.databases.use(.postgres(configuration: .init(
-        hostname: Environment.get("DATABASE_HOST") ?? Environment.get("PGHOST") ?? "localhost",
-        port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? Environment.get("PGPORT").flatMap(Int.init(_:)) ?? 5432,
-        username: Environment.get("DATABASE_USERNAME") ?? Environment.get("PGUSER") ?? "vapor_username",
-        password: Environment.get("DATABASE_PASSWORD") ?? Environment.get("PGPASSWORD") ?? "vapor_password",
-        database: Environment.get("DATABASE_NAME") ?? Environment.get("PGDATABASE") ?? "vapor_database",
+    let databaseHost = Environment.get("DATABASE_HOST") ?? Environment.get("PGHOST") ?? "localhost"
+    let databasePort = Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? Environment.get("PGPORT").flatMap(Int.init(_:)) ?? 5432
+    let databaseName = Environment.get("DATABASE_NAME") ?? Environment.get("PGDATABASE") ?? "vapor_database"
+    let databaseUsername = Environment.get("DATABASE_USERNAME") ?? Environment.get("PGUSER") ?? "vapor_username"
+    let databasePassword = Environment.get("DATABASE_PASSWORD") ?? Environment.get("PGPASSWORD") ?? "vapor_password"
+
+    let databaseConfig = SQLPostgresConfiguration(
+        hostname: databaseHost,
+        port: databasePort,
+        username: databaseUsername,
+        password: databasePassword,
+        database: databaseName,
         tls: .prefer(try .init(configuration: .clientDefault))
-    )), as: .psql)
+    )
+
+    app.databases.use(.postgres(configuration: databaseConfig), as: .psql)
 
     app.migrations.add(CreateJournalEntry())
 

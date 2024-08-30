@@ -9,7 +9,7 @@ import Foundation
 import Fluent
 import Vapor
 
-final class JournalEntry: Model, Content, Sendable {
+final class JournalEntry: Model, Content {
     static let schema = "journal_entries"
     
     @ID(key: .id)
@@ -28,4 +28,7 @@ final class JournalEntry: Model, Content, Sendable {
         self.content = content
     }
 }
+
+extension JournalEntry: Sendable {}
+
 
