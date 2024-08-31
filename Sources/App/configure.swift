@@ -11,35 +11,21 @@ public func configure(_ app: Application) async throws {
     }
 
     // Database configuration
-    let databaseHost = Environment.get("DATABASE_HOST") ?? "localhost"
-    let databasePort = Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? 5432 // Default to 5432 if not specified
-    let databaseName = Environment.get("DATABASE_NAME") ?? "vapor_database"
-    let databaseUsername = Environment.get("DATABASE_USERNAME") ?? "vapor_username"
-    let databasePassword = Environment.get("DATABASE_PASSWORD") ?? "vapor_password"
+    guard let databaseURL = Environment.get("DATABASE_URL") else {
+        app.logger.error("DATABASE_URL is not set")
+        throw Abort(.internalServerError)
+    }
 
-    let databaseConfig = SQLPostgresConfiguration(
-        hostname: databaseHost,
-        port: databasePort,
-        username: databaseUsername,
-        password: databasePassword,
-        database: databaseName,
-        tls: .prefer(try .init(configuration: .clientDefault))
-    )
-
-    app.databases.use(.postgres(configuration: databaseConfig), as: .psql)
+    try app.databases.use(.postgres(url: databaseURL), as: .psql)
 
     app.migrations.add(CreateJournalEntry())
 
-    try await app.autoMigrate()
-
     // Log configuration details (for debugging)
     app.logger.info("Server will run on port: \(app.http.server.configuration.port)")
-    app.logger.info("Database Configuration:")
-    app.logger.info("Host: \(databaseHost)")
-    app.logger.info("Port: \(databasePort)")
-    app.logger.info("Database: \(databaseName)")
-    app.logger.info("Username: \(databaseUsername)")
-    // Do not log the password for security reasons
+    app.logger.info("Database URL: \(databaseURL)")
+
+    // Run migrations
+    try await app.autoMigrate()
 }
 
 
