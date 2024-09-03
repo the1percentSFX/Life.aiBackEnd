@@ -11,10 +11,9 @@ public func configure(_ app: Application) async throws {
     }
 
     // Database configuration
-    guard let databaseURL = Environment.get("DATABASE_URL") else {
-        app.logger.error("DATABASE_URL is not set")
-        throw Abort(.internalServerError)
-    }
+    let databaseURL = Environment.get("DATABASE_URL") ?? "postgresql://vapor_username:vapor_password@localhost:5432/vapor_database"
+
+    app.logger.info("Using Database URL: \(databaseURL)")
 
     try app.databases.use(.postgres(url: databaseURL), as: .psql)
 
