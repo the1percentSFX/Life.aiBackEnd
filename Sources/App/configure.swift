@@ -15,7 +15,15 @@ public func configure(_ app: Application) async throws {
     
     app.logger.info("Using Database URL: \(databaseURL)")
     
-    try app.databases.use(.postgres(url: databaseURL), as: .psql)
+    do {
+        if let databaseURL = Environment.get("DATABASE_URL") {
+            try app.databases.use(.postgres(url: databaseURL), as: .psql)
+        } else {
+            app.logger.error("DATABASE_URL not set")
+        }
+    } catch {
+        app.logger.error("Failed to configure database: \(error)")
+    }
     
     app.migrations.add(CreateJournalEntry())
     
@@ -29,6 +37,3 @@ public func configure(_ app: Application) async throws {
     // Configure routes
     try routes(app)
 }
-
-
-
